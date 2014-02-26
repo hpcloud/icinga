@@ -5,9 +5,9 @@
 #                                                       #
 #########################################################
  
-OS_TENANT_NAME=ig2ad
-OS_USERNAME=daniel.l.shirley@hp.com
-OS_PASSWORD="7WJbaV4&3f4#YYS@b43&w6GAR"
+OS_TENANT_NAME=
+OS_USERNAME=
+OS_PASSWORD=
 OS_AUTH_URL=https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0/
 OS_REGION_NAME=region-b.geo-1
 
