@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################################################################
-# Simple Nagios plugin to monitor nova instance creation                       #
+# Simple Nagios plugin to monitor nova list                                    #
 # Author: Daniel Shirley                                                       #
 ################################################################################
 
@@ -35,7 +35,7 @@ function print_help {
    # Print detailed help information
    print_revision
    echo "$AUTHOR"
-   echo "Check if NOVA will create an instance"
+   echo "Check how long nova list takes"
    echo "Requires enviroment verables set in enviroment.conf and python-novaclient installed"
    echo "you can install this by typeing -- pip install python-novaclient"
    
@@ -50,9 +50,9 @@ Options:
    Print version information
 
 -w INTEGER
-   Exit with WARNING status if instance creation takes longer than (min)
+   Exit with WARNING status if nova list takes longer than (sec)
 -c INTEGER
-   Exit with CRITICAL status if instance creation takes longer than (min)
+   Exit with CRITICAL status if nova list takes longer than (sec)
 -v
    Verbose output
 __EOT
@@ -90,8 +90,8 @@ while [ "$1" ]; do
                # Threshold is a number (MB)
                thresh=$2
            else
-               # Threshold is neither a number nor a percentage
-               echo "$PROGNAME: Threshold must be integer or percentage"
+               # Threshold is not a number
+               echo "$PROGNAME: Threshold must be an integer"
                print_usage
                exit $STATE_UNKNOWN
            fi
@@ -118,36 +118,49 @@ if [[ -z "$thresh_warn" || -z "$thresh_crit" ]]; then
    exit $STATE_UNKNOWN
 elif [[ "$thresh_crit" -lt "$thresh_warn" ]]; then
    # The warning threshold must be less than the critical threshold
-   echo "$PROGNAME: Warning creation time should be less than critical creation time"
+   echo "$PROGNAME: Warning time should be less than critical time"
    print_usage
    exit $STATE_UNKNOWN
 fi
 
 # Main #########################################################################
 
-
-
-
-
-
-
-
-
-
-
-
+time="$(date +%s)"
+nova_output="$(nova list 2>&1)"
+if [[ $? -gt 0 ]]; then
+   echo "NOVA LIST CRITICAL - Command failed please check the logs at /var/log/icinga/nova_check.log"
+   echo "$(date)" >> /var/log/icinga/nova_check.log
+   echo "$nova_output" >> /var/log/icinga/nova_check.log
+   exit $STATE_CRITICAL
+fi
+sleep 5 
+time="$(($(date +%s)-time))"
 
 # Verbosity settings ###########################################################
 if [[ "$verbosity" -ge 2 ]]; then
    # Print debugging information
    /bin/cat <<__EOT
 Debugging information:
-  Warning threshold: $thresh_warn MIN
-  Critical threshold: $thresh_crit MIN
+  Warning threshold: $thresh_warn SEC
+  Critical threshold: $thresh_crit SEC
   Verbosity level: $verbosity
   Completed Time: $time
   NOVA Output: $nova_output
 __EOT
 fi
 
+# Evaluate #####################################################################
 
+if [[ "$time" -gt "$thresh_crit" ]]; then
+   # Nova list took longer than the critical threshold
+   echo "NOVA LIST CRITICAL - Took $time sec to complete"
+   exit $STATE_CRITICAL
+elif [[ "$time" -gt "$thresh_warn" ]]; then
+   # Nova list took longer than the warning threshold
+   echo "NOVA LIST WARNING - Took $time sec to complete"
+   exit $STATE_WARNING
+else
+   # Nova list working!
+   echo "NOVA LIST OK - Took $time sec to complete"
+   exit $STATE_OK
+fi
