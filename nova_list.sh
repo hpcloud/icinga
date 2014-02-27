@@ -5,9 +5,10 @@
 # Author: Daniel Shirley                                                       #
 ################################################################################
 
-VERSION="Version 0.10a"
+VERSION="Version 1.0"
 AUTHOR="2014 Daniel Shirley (daniel.l.shirley@hp.com)"
 PROGNAME=`/bin/basename $0`
+PATH=`/usr/bin/dirname $0`
 
 # Exit codes
 STATE_OK=0
@@ -17,7 +18,7 @@ STATE_UNKNOWN=3
 
 # File Includes ################################################################
 
-. enviroment.conf
+. $PATH/enviroment.conf
 
 # Helper functions #############################################################
 
@@ -125,16 +126,15 @@ fi
 
 # Main #########################################################################
 
-time="$(date +%s)"
-nova_output="$(nova list 2>&1)"
+time="$(/bin/date +%s)"
+nova_output="$($NOVA list 2>&1)"
 if [[ $? -gt 0 ]]; then
    echo "NOVA LIST CRITICAL - Command failed please check the logs at /var/log/icinga/nova_check.log"
-   echo "$(date)" >> /var/log/icinga/nova_check.log
+   echo "$(/bin/date)" >> /var/log/icinga/nova_check.log
    echo "$nova_output" >> /var/log/icinga/nova_check.log
    exit $STATE_CRITICAL
 fi
-sleep 5 
-time="$(($(date +%s)-time))"
+time="$(($(/bin/date +%s)-time))"
 
 # Verbosity settings ###########################################################
 if [[ "$verbosity" -ge 2 ]]; then

@@ -4,7 +4,7 @@
 #for an explanation of varibles please see our wiki     #
 #                                                       #
 #########################################################
- 
+
 export OS_TENANT_NAME=
 export OS_USERNAME=
 export OS_PASSWORD=
@@ -17,3 +17,4 @@ export OS_REGION_NAME=region-b.geo-1
 #########################################################
 
 NOVA=/usr/bin/nova
+
