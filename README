@@ -1,1 +1,11 @@
-==Starting repo for openstack icinga plugins==
+===Repo for openstack icinga plugins===
+
+==Wiki link==
+https://github.com/hpcloud/icinga/wiki
+
+==BugTracker==
+https://github.com/hpcloud/icinga/issues
+
+====Note these plugins are VERY expermental as of right now====
+====Please DO NOT USE====
+
