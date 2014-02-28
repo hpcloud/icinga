@@ -17,4 +17,5 @@ export OS_REGION_NAME=region-b.geo-1
 #########################################################
 
 NOVA=/usr/bin/nova
+SWIFT=/usr/bin/swift
 

@@ -5,7 +5,7 @@
 # Author: Daniel Shirley                                                       #
 ################################################################################
 
-VERSION="Version 0.1a"
+VERSION="Version 1.0"
 AUTHOR="2014 Daniel Shirley (daniel.l.shirley@hp.com)"
 PROGNAME=`/bin/basename $0`
 PATH=`/usr/bin/dirname $0`
