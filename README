@@ -1,4 +1,4 @@
-===Repo for openstack icinga plugins===
+===Repo for OpenStack icinga plugins===
 
 ==Wiki link==
 https://github.com/hpcloud/icinga/wiki
@@ -7,5 +7,15 @@ https://github.com/hpcloud/icinga/wiki
 https://github.com/hpcloud/icinga/issues
 
 ====Note these plugins are VERY expermental as of right now====
-====Please DO NOT USE====
+
+Please do not use any plugin with less than version 1.0 as these have not yet been tested.
+
+Any version that ends in an (a) i.e. 1.01a or 2.12a are an ALPHA Version and have not yet been 
+proven stable (expect bugs)
+
+Any version that ends in an (b) i.e. 1.25b or 2.70b are a BETA Version and have been proven 
+stable but are still in testing (expect bugs)
+
+Any version that doesnt end in a letter and that are older than V1.0 is an active plugin that 
+HPCLOUD is useing to monitor the fuctionality of www.hpcloud.com OpenStack
 
