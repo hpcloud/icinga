@@ -5,7 +5,7 @@
 # Author: Daniel Shirley                                                       #
 ################################################################################
 
-VERSION="Version 0.1a"
+VERSION="Version 1.0"
 AUTHOR="2014 Daniel Shirley (daniel.l.shirley@hp.com)"
 PROGNAME=`/bin/basename $0`
 PATH=`/usr/bin/dirname $0`
@@ -36,7 +36,7 @@ function print_help {
    # Print detailed help information
    print_revision
    echo "$AUTHOR"
-   echo "Check how long swift stat takes"
+   echo "Check how long swift upload takes"
    echo "Requires enviroment verables set in enviroment.conf and python-swiftclient installed and my require python-keystoneclient"
    echo "you can install this by typeing -- pip install python-swiftclient -- and -- pip install python-keystoneclient"
    
@@ -129,35 +129,41 @@ fi
 # Create random file names to use
 TESTCONTAINER=$RANDOM
 TESTFILE=$RANDOM
+TESTFILEPATH=/tmp/$TESTFILE
 
 #remove old logger file if present
-if [ -e swiftupload.tmp ]
+if [ -e /tmp/swiftupload.tmp ]
   then
-    /bin/rm swiftupload.tmp
+    /bin/rm /tmp/swiftupload.tmp
 fi
 
 #create temp logging file
-/bin/touch swiftupload.tmp
+/bin/touch /tmp/swiftupload.tmp
 #check if temp log file created successfully ... if not abandon all hope
-if [ ! -e swiftupload.tmp ]
+if [ ! -e /tmp/swiftupload.tmp ]
   then
-  echo "could not create temp logging file. please check the logs at /var/log/icinga/swift_upload_check.log"
-  echo "could not create temp logging file. $PATH/swiftupload.tmp" >> /var/log/icinga/swift_upload_check.log
-  exit $STATE_UNKNOWN
+    echo "could not create temp logging file. please check the logs at /var/log/icinga/swift_upload_check.log"
+    echo "could not create temp logging file. /tmp/swiftupload.tmp" >> /var/log/icinga/swift_upload_check.log
+    exit $STATE_UNKNOWN
+  else
+    echo $(/bin/date) >> /tmp/swiftupload.tmp
+    echo "TEST CONTAINER : $TESTCONTAINER" >> /tmp/swiftupload.tmp
+    echo "TEST FILE: $TESTFILE" >> /tmp/swiftupload.tmp 
+    echo "TEST FILE LOCATION: $TESTFILEPATH" >> /tmp/swiftupload.tmp
 fi
 
 #create temp file for uploading
-echo "create temp file" >> swiftupload.tmp
-/bin/touch $TESTFILE
+echo "create temp file" >> /tmp/swiftupload.tmp
+/bin/touch $TESTFILEPATH
 #test if file was created successfully ... if not abandon all hope
-if [ -e $TESTFILE ]
+if [ -e $TESTFILEPATH ]
   then
-    echo "successfully created temp file" >> swiftupload.tmp
+    echo "successfully created temp file" >> /tmp/swiftupload.tmp
   else
-    echo "could not create temp file" >> swiftupload.tmp
+    echo "could not create temp file" >> /tmp/swiftupload.tmp
     echo "could not create temp file please check the logs at /var/log/icinga/swift_upload_check.log"
-    cat swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
-    /bin/rm swiftupload.tmp
+    cat /tmp/swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
+    /bin/rm /tmp/swiftupload.tmp
 exit $STATE_UNKNOWN
 fi
 
@@ -165,54 +171,56 @@ fi
 time="$(/bin/date +%s)"
 
 #upload the new file to a new container
-echo "upload the file $TESTFILE to new container $TESTCONTAINER" >> swiftupload.tmp
-/usr/bin/swift upload $TESTCONTAINER $TESTFILE >> swiftupload.tmp 2>&1
+echo "upload the file $TESTFILE to new container $TESTCONTAINER" >> /tmp/swiftupload.tmp
+/usr/bin/swift upload $TESTCONTAINER $TESTFILEPATH >> /tmp/swiftupload.tmp 2>&1
 
 #check if new file is in the new container ... and log everything
-echo "check if new container was createed"  >> swiftupload.tmp
-/usr/bin/swift list >> swiftupload.tmp 2>&1
-if [[ $(/usr/bin/swift list 2>/dev/null) == *"$TESTCONTAINER"* ]]
+echo "check if new container was createed"  >> /tmp/swiftupload.tmp
+/usr/bin/swift list >> /tmp/swiftupload.tmp 2>&1
+if [[ $(/usr/bin/swift list 2>/dev/null) == *$TESTCONTAINER* ]]
   then
-    echo "new container was created"  >> swiftupload.tmp
+    echo "new container was created"  >> /tmp/swiftupload.tmp
     UPLOADED=true
   else
-    /bin/cat swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
-    /bin/rm swiftupload.tmp
-    /bin/rm $TESTFILE
+    echo "new container was NOT created"  >> /tmp/swiftupload.tmp
+    /bin/cat /tmp/swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
+    /bin/rm /tmp/swiftupload.tmp
+    /bin/rm $TESTFILEPATH
     echo "the new container was not created please check the logs at /var/log/icinga/swift_upload_check.log"
     exit $STATE_CRITICAL
 fi
-echo "check if new file was uploaded"  >> swiftupload.tmp
-/usr/bin/swift list $TESTCONTAINER >> swiftupload.tmp 2>&1
-if [[ $(/usr/bin/swift list $TESTCONTAINER 2>/dev/null) == *"$TESTFILE"* ]]
+echo "check if new file was uploaded"  >> /tmp/swiftupload.tmp
+/usr/bin/swift list $TESTCONTAINER >> /tmp/swiftupload.tmp 2>&1
+if [[ $(/usr/bin/swift list $TESTCONTAINER 2>/dev/null) == *$TESTFILE* ]]
   then
-    echo "new file was uploaded"  >> swiftupload.tmp
+    echo "new file was uploaded"  >> /tmp/swiftupload.tmp
     UPLOADED=true
   else
-    cat swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
-    /bin/rm swiftupload.tmp
-    /bin/rm $TESTFILE
+    echo "new file was NOT uploaded"  >> /tmp/swiftupload.tmp
+    /bin/cat /tmp/swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
+    /bin/rm /tmp/swiftupload.tmp
+    /bin/rm $TESTFILEPATH
     echo "file was not uploaded to swift please check the logs at /var/log/icinga/swift_upload_check.log"
     exit $STATE_CRITICAL
 fi
 
 #delete the new file and container
-echo "delete container" >> swiftupload.tmp
-/usr/bin/swift delete $TESTCONTAINER >> swiftupload.tmp 2>&1
+echo "delete container" >> /tmp/swiftupload.tmp
+/usr/bin/swift delete $TESTCONTAINER >> /tmp/swiftupload.tmp 2>&1
 
 #check if the container is gone ... and log everything
-echo "check if container was deleted" >> swiftupload.tmp
-/usr/bin/swift list >> swiftupload.tmp 2>&1
-if [[ $(/usr/bin/swift list 2>/dev/null) == *"$TESTCONTAINER"* ]]
+echo "check if container was deleted" >> /tmp/swiftupload.tmp
+/usr/bin/swift list >> /tmp/swiftupload.tmp 2>&1
+if [[ $(/usr/bin/swift list 2>/dev/null) == *$TESTCONTAINER* ]]
   then
-    echo "file was not deleted"  >> swiftupload.tmp
-    cat swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
-    /bin/rm swiftupload.tmp
-    /bin/rm $TESTFILE
+    echo "file was not deleted"  >> /tmp/swiftupload.tmp
+    cat /tmp/swiftupload.tmp >> /var/log/icinga/swift_upload_check.log
+    /bin/rm /tmp/swiftupload.tmp
+    /bin/rm $TESTFILEPATH
     echo "file was not deleted please check the logs at /var/log/icinga/swift_upload_check.log"
     exit $STATE_CRITICAL
   else
-    echo "container was deleted" >> swiftupload.tmp
+    echo "container was deleted" >> /tmp/swiftupload.tmp
     DELETED=true
 fi
 
@@ -231,7 +239,7 @@ Debugging information:
   Test container: $TESTCONTAINER
   Test upload file: $TESTFILE
   Command's Output:
-`/bin/cat swiftupload.tmp`
+`/bin/cat /tmp/swiftupload.tmp`
 __EOT
 fi
 
@@ -241,20 +249,20 @@ fi
 if [[ "$time" -gt "$thresh_crit" ]]; then
    # Nova list took longer than the critical threshold
    echo "SWIFT STAT CRITICAL - Took $time sec to complete"
-   /bin/rm swiftupload.tmp
-   /bin/rm $TESTFILE
+   /bin/rm /tmp/swiftupload.tmp
+   /bin/rm $TESTFILEPATH
    exit $STATE_CRITICAL
 elif [[ "$time" -gt "$thresh_warn" ]]; then
    # Swift stat took longer than the warning threshold
    echo "SWIFT STAT WARNING - Took $time sec to complete"
-   /bin/rm swiftupload.tmp
-   /bin/rm $TESTFILE
+   /bin/rm /tmp/swiftupload.tmp
+   /bin/rm $TESTFILEPATH
    exit $STATE_WARNING
 else
    # Swift stat working!
    echo "SWIFT STAT OK - Took $time sec to complete"
-   /bin/rm swiftupload.tmp
-   /bin/rm $TESTFILE
+   /bin/rm /tmp/swiftupload.tmp
+   /bin/rm $TESTFILEPATH
    exit $STATE_OK
 fi
 

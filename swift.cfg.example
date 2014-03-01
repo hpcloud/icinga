@@ -48,4 +48,12 @@ define service{
         check_command                   swift_stat!5!15
         }
 
+# Define a service to check swift upload
+
+define service{
+        use                             fuctional-service         ; Name of service template to use
+        host_name                       swift
+        service_description             Swift upload
+        check_command                   swift_upload!15!30
+        }
 

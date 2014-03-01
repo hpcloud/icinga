@@ -10,6 +10,7 @@
 #
 ###############################################################################
 
+# NOVA ########################################################################
 
 # 'nova_list' command definition
 define command {
@@ -17,9 +18,17 @@ define command {
         command_line    $USER1$/nova_list.sh -w $ARG1$ -c $ARG2$
 }
 
+# SWIFT #######################################################################
+
 # 'swift_stat' command definition
 define command {
         command_name    swift_stat
         command_line    $USER1$/swift_stat.sh -w $ARG1$ -c $ARG2$
+}
+
+# 'swift_upload' command definition
+define command {
+        command_name    swift_upload
+        command_line    $USER1$/swift_upload.sh -w $ARG1$ -c $ARG2$
 }
 
