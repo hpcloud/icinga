@@ -5,7 +5,7 @@
 # Author: Daniel Shirley                                                       #
 ################################################################################
 
-VERSION="Version 1.0"
+VERSION="Version 1.01"
 AUTHOR="2014 Daniel Shirley (daniel.l.shirley@hp.com)"
 PROGNAME=`/bin/basename $0`
 PATH=`/usr/bin/dirname $0`
@@ -51,9 +51,9 @@ Options:
    Print version information
 
 -w INTEGER
-   Exit with WARNING status if swift stat takes longer than (sec)
+   Exit with WARNING status if swift upload takes longer than (sec)
 -c INTEGER
-   Exit with CRITICAL status if swift stat takes longer than (sec)
+   Exit with CRITICAL status if swift upload takes longer than (sec)
 -v
    Verbose output
 __EOT
@@ -248,19 +248,19 @@ fi
 
 if [[ "$time" -gt "$thresh_crit" ]]; then
    # Nova list took longer than the critical threshold
-   echo "SWIFT STAT CRITICAL - Took $time sec to complete"
+   echo "SWIFT UPLOAD CRITICAL - Took $time sec to complete"
    /bin/rm /tmp/swiftupload.tmp
    /bin/rm $TESTFILEPATH
    exit $STATE_CRITICAL
 elif [[ "$time" -gt "$thresh_warn" ]]; then
-   # Swift stat took longer than the warning threshold
-   echo "SWIFT STAT WARNING - Took $time sec to complete"
+   # Swift upload took longer than the warning threshold
+   echo "SWIFT UPLOAD WARNING - Took $time sec to complete"
    /bin/rm /tmp/swiftupload.tmp
    /bin/rm $TESTFILEPATH
    exit $STATE_WARNING
 else
-   # Swift stat working!
-   echo "SWIFT STAT OK - Took $time sec to complete"
+   # Swift upload working!
+   echo "SWIFT UPLOAD OK - Took $time sec to complete"
    /bin/rm /tmp/swiftupload.tmp
    /bin/rm $TESTFILEPATH
    exit $STATE_OK
