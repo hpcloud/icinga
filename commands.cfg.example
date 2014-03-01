@@ -1,0 +1,25 @@
+###############################################################################
+# COMMANDS.CFG - SAMPLE COMMAND DEFINITIONS FOR OPENSTACK ICINGA
+#
+# NOTES: This config file provides you with some example command definitions
+#        that you can reference for the openstack fuctional tests.
+#       
+#        You don't need to keep commands in a separate file from your other
+#        object definitions.  This has been done just to make things easier to
+#        understand.
+#
+###############################################################################
+
+
+# 'nova_list' command definition
+define command {
+        command_name    nova_list
+        command_line    $USER1$/nova_list.sh -w $ARG1$ -c $ARG2$
+}
+
+# 'swift_stat' command definition
+define command {
+        command_name    swift_stat
+        command_line    $USER1$/swift_stat.sh -w $ARG1$ -c $ARG2$
+}
+
