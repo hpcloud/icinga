@@ -32,3 +32,11 @@ define command {
         command_line    $USER1$/swift_upload.sh -w $ARG1$ -c $ARG2$
 }
 
+# CINDER ########################################################################
+
+# 'cinder_list' command definition
+define command {
+        command_name    cinder_list
+        command_line    $USER1$/cinder_list.sh -w $ARG1$ -c $ARG2$
+}
+

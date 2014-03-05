@@ -1,0 +1,51 @@
+###############################################################################
+# COMMANDS.CFG - SAMPLE HOST DEFINITIONS FOR OPENSTACK ICINGA (CINDER
+#
+# NOTES: This config file provides you with some example host and service
+#        definitions that you can reference for the openstack fuctional tests.
+#
+#        You don't need to keep definitions in a separate file from your other
+#        definitions.  This has been done just to make things easier to
+#        understand.
+#
+###############################################################################
+
+###############################################################################
+###############################################################################
+#
+# HOST DEFINITION
+#
+###############################################################################
+###############################################################################
+
+# Define a host for the fuctional tests
+
+define host{
+        use                     fuctional-tests            ; Name of host template to use
+                                                           ; This host definition will inherit all variables that are defined
+                                                           ; in (or inherited by) the linux-server host template definition.
+        host_name               cinder
+        alias                   cinder
+        address                 127.0.0.1
+        check_command           cinder_list!5!15
+        }
+
+###############################################################################
+###############################################################################
+#
+# SERVICE DEFINITIONS
+#
+###############################################################################
+###############################################################################
+
+
+# Define a service to check nova list
+
+define service{
+        use                             fuctional-service         ; Name of service template to use
+        host_name                       cinder
+        service_description             Cinder List
+        check_command                   cinder_list!5!15
+        }
+
+
