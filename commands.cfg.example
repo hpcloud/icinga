@@ -40,3 +40,9 @@ define command {
         command_line    $USER1$/cinder_list.sh -w $ARG1$ -c $ARG2$
 }
 
+# 'cinder_list' command definition
+define command {
+        command_name    cinder_create
+        command_line    $USER1$/cinder_create.sh -w $ARG1$ -c $ARG2$
+}
+                 

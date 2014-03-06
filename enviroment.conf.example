@@ -16,8 +16,13 @@ export OS_REGION_NAME=region-b.geo-1
 #Program locations (if unsure leave them as is)         #
 #########################################################
 
+# openstack clients
 NOVA=/usr/bin/nova
 SWIFT=/usr/bin/swift
 CINDER=/usr/bin/cinder
 NEUTRON=/usr/bin/neutron
-
+ 
+# linux defaults
+GREP=/bin/grep
+CUT=/bin/cut
+ 

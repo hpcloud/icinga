@@ -48,4 +48,11 @@ define service{
         check_command                   cinder_list!5!15
         }
 
+define service{
+        use                             fuctional-service         ; Name of service template to use
+        host_name                       cinder
+        service_description             Cinder Create
+        check_command                   cinder_create!15!45
+        }
+
 
