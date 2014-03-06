@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################################################################
-# Simple Nagios plugin to monitor $CINDER create                                #
+# Simple Nagios plugin to monitor cinder create                                #
 # Author: Daniel Shirley                                                       #
 ################################################################################
 
@@ -36,9 +36,9 @@ function print_help {
    # Print detailed help information
    print_revision
    echo "$AUTHOR"
-   echo "Check how long $CINDER create takes"
-   echo "Requires enviroment verables set in enviroment.conf and python-$CINDERclient installed"
-   echo "you can install this by typeing -- pip install python-$CINDERclient"
+   echo "Check how long cinder create takes"
+   echo "Requires enviroment verables set in enviroment.conf and python-cinderclient installed"
+   echo "you can install this by typeing -- pip install python-cinderclient"
    
    print_usage
 
@@ -51,9 +51,9 @@ Options:
    Print version information
 
 -w INTEGER
-   Exit with WARNING status if $CINDER create takes longer than (sec)
+   Exit with WARNING status if cinder create takes longer than (sec)
 -c INTEGER
-   Exit with CRITICAL status if $CINDER create takes longer than (sec)
+   Exit with CRITICAL status if cinder create takes longer than (sec)
 -v
    Verbose output
 __EOT
@@ -147,7 +147,7 @@ fi
 #start timeing now
 time="$(/bin/date +%s)"
 
-echo "create $CINDER volume" >> /tmp/cindercreate.tmp
+echo "create cinder volume" >> /tmp/cindercreate.tmp
 $CINDER create 1 &>> /tmp/cindercreate.tmp
 
 
@@ -156,7 +156,7 @@ if [ $volid == "noid" ]
 then
 echo "could not find volume id" >> /tmp/cindercreate.tmp
 /bin/cat /tmp/cindercreate.tmp >> /var/log/icinga/cinder_create.log
-echo "could not find volume id please check logs /var/log/icinga/$CINDER_create.log"
+echo "could not find volume id please check logs /var/log/icinga/cinder_create.log"
 exit $STATE_CRITICAL
 else
 echo "useing $volid as volume id" >> /tmp/cindercreate.tmp
@@ -181,7 +181,7 @@ do
     echo "volume created in error" >> /tmp/cindercreate.tmp
     $CINDER list &>> /tmp/cindercreate.tmp
     /bin/cat /tmp/cindercreate.tmp >> /var/log/icinga/cinder_create.log
-    echo "volume created in error please check logs /var/log/icinga/$CINDER_create.log"
+    echo "volume created in error please check logs /var/log/icinga/cinder_create.log"
     exit $STATE_CRITICAL
   fi
 
@@ -192,7 +192,7 @@ do
     echo "volume did not create in time" >> /tmp/cindercreate.tmp
     $CINDER list &>> /tmp/cindercreate.tmp
     /bin/cat /tmp/cindercreate.tmp >> /var/log/icinga/cinder_create.log
-    echo "volume did not create in time please check logs /var/log/icinga/$CINDER_create.log"
+    echo "volume did not create in time please check logs /var/log/icinga/cinder_create.log"
     exit $STATE_CRITICAL
   fi
 
@@ -220,7 +220,7 @@ do
     echo "volume did not delete in time" >> /tmp/cindercreate.tmp
     $CINDER list &> /tmp/cindercreate.tmp
     /bin/cat /tmp/cindercreate.tmp >> /var/log/icinga/cinder_create.log
-    echo "volume did not delete in time please check logs /var/log/icinga/$CINDER_create.log"
+    echo "volume did not delete in time please check logs /var/log/icinga/cinder_create.log"
     exit $STATE_CRITICAL
   fi
 
@@ -240,7 +240,7 @@ Debugging information:
   Critical threshold: $thresh_crit SEC
   Verbosity level: $verbosity
   Completed Time: $time
-  $CINDER Volume: $volid
+  CINDER Volume: $volid
   Volume was available: $AVAILABLE
   Volume was deleted: $DELETED
   Log: 
@@ -252,14 +252,14 @@ fi
 
 if [[ "$time" -gt "$thresh_crit" ]]; then
    # Cinder create took longer than the critical threshold
-   echo "$CINDER CREATE CRITICAL - Took $time sec to complete"
+   echo "CINDER CREATE CRITICAL - Took $time sec to complete"
    exit $STATE_CRITICAL
 elif [[ "$time" -gt "$thresh_warn" ]]; then
    # Cinder create took longer than the warning threshold
-   echo "$CINDER CREATE WARNING - Took $time sec to complete"
+   echo "CINDER CREATE WARNING - Took $time sec to complete"
    exit $STATE_WARNING
 else
    # Cinder create working!
-   echo "$CINDER CREATE OK - Took $time sec to complete"
+   echo "CINDER CREATE OK - Took $time sec to complete"
    exit $STATE_OK
 fi
