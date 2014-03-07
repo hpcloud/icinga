@@ -26,4 +26,7 @@ NEUTRON=/usr/bin/neutron
 GREP=/bin/grep
 CUT=/bin/cut
 TR=/usr/bin/tr
+HEAD=/usr/bin/head
+TAIL=/usr/bin/tail
+WC=/usr/bin/wc
  

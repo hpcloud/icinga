@@ -39,7 +39,7 @@ define host{
 ###############################################################################
 
 
-# Define a service to check nova list
+# Define a service to check cinder list
 
 define service{
         use                             fuctional-service         ; Name of service template to use
@@ -55,4 +55,17 @@ define service{
         check_command                   cinder_create!15!45
         }
 
+define service{
+        use                             fuctional-service         ; Name of service template to use
+        host_name                       cinder
+        service_description             Cinder Volume Usage
+        check_command                   cinder_volume_usage!50%!80%
+        }
+
+define service{
+        use                             fuctional-service         ; Name of service template to use
+        host_name                       cinder
+        service_description             Cinder Gigabyte Usage
+        check_command                   cinder_gigabyte_usage!50%!80%
+        }
 

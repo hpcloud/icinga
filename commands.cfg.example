@@ -59,4 +59,16 @@ define command {
         command_name    cinder_create
         command_line    $USER1$/cinder_create.sh -w $ARG1$ -c $ARG2$
 }
-                 
+
+# 'cinder_volume_usage' command definition        
+define command {
+        command_name    cinder_volume_usage
+        command_line    $USER1$/cinder_volume_usage.sh -w $ARG1$ -c $ARG2$
+}
+        
+# 'cinder_gigabyte_usage' command definition
+define command {
+        command_name    cinder_gigabyte_usage
+        command_line    $USER1$/cinder_gigabyte_usage.sh -w $ARG1$ -c $ARG2$
+}
+ 
