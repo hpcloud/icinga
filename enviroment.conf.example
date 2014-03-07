@@ -25,4 +25,5 @@ NEUTRON=/usr/bin/neutron
 # linux defaults
 GREP=/bin/grep
 CUT=/bin/cut
+TR=/usr/bin/tr
  

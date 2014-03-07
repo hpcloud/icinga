@@ -48,4 +48,10 @@ define service{
         check_command                   nova_list!5!15
         }
 
+define service{
+        use                             fuctional-service         ; Name of service template to use
+        host_name                       nova
+        service_description             Nova RAM Usage
+        check_command                   nova_ram_usage!50%!80%
+        }
 

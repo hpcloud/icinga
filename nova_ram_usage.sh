@@ -1,13 +1,14 @@
 #!/bin/bash
 
 ################################################################################
-# Simple Nagios plugin to monitor nova instance creation                       #
+# Simple Nagios plugin to monitor nova ram usage                               #
 # Author: Daniel Shirley                                                       #
 ################################################################################
 
 VERSION="Version 0.10a"
 AUTHOR="2014 Daniel Shirley (daniel.l.shirley@hp.com)"
 PROGNAME=`/bin/basename $0`
+PATH=`/usr/bin/dirname $0`
 
 # Exit codes
 STATE_OK=0
@@ -17,7 +18,7 @@ STATE_UNKNOWN=3
 
 # File Includes ################################################################
 
-. enviroment.conf
+. $PATH/enviroment.conf
 
 # Helper functions #############################################################
 
@@ -35,7 +36,7 @@ function print_help {
    # Print detailed help information
    print_revision
    echo "$AUTHOR"
-   echo "Check if NOVA will create an instance"
+   echo "Check if NOVA ram usage is close to limits"
    echo "Requires enviroment verables set in enviroment.conf and python-novaclient installed"
    echo "you can install this by typeing -- pip install python-novaclient"
    
@@ -50,9 +51,13 @@ Options:
    Print version information
 
 -w INTEGER
-   Exit with WARNING status if instance creation takes longer than (min)
+   Exit with WARNING status if less than INTEGER ram useable
+-w PERCENT%
+   Exit with WARNING status if less than PERCENT ram useable
 -c INTEGER
-   Exit with CRITICAL status if instance creation takes longer than (min)
+   Exit with CRITICAL status if less than INTEGER ram useable
+-c PERCENT%
+   Exit with CRITICAL status if less than PERCENT ram useable
 -v
    Verbose output
 __EOT
@@ -64,6 +69,14 @@ verbosity=0
 thresh_warn=
 # Critical threshold
 thresh_crit=
+
+
+# main #########################################################################
+
+RAMLIMIT=$($NOVA absolute-limits | $GREP maxTotalRAMSize | $CUT -d"|" -f3 | $TR -d ' ')
+RAMUSED=$($NOVA absolute-limits | $GREP totalRAMUsed | $CUT -d"|" -f3 | $TR -d ' ')
+RAMUSEDPERC=$(( RAMUSED * 100 / RAMLIMIT ))
+
 
 # Parse command line options
 while [ "$1" ]; do
@@ -87,8 +100,11 @@ while [ "$1" ]; do
                print_usage
                exit $STATE_UNKNOWN
            elif [[ "$2" = +([0-9]) ]]; then
-               # Threshold is a number (MB)
+               # Threshold is a number
                thresh=$2
+           elif [[ "$2" = +([0-9])% ]]; then
+               # Threshold is a percentage
+               thresh=$(( RAMLIMIT * ${2%\%} / 100 ))
            else
                # Threshold is neither a number nor a percentage
                echo "$PROGNAME: Threshold must be integer or percentage"
@@ -118,20 +134,10 @@ if [[ -z "$thresh_warn" || -z "$thresh_crit" ]]; then
    exit $STATE_UNKNOWN
 elif [[ "$thresh_crit" -lt "$thresh_warn" ]]; then
    # The warning threshold must be less than the critical threshold
-   echo "$PROGNAME: Warning creation time should be less than critical creation time"
+   echo "$PROGNAME: Warning useage should be less than critical useage"
    print_usage
    exit $STATE_UNKNOWN
 fi
-
-# Main #########################################################################
-
-
-
-
-
-
-
-
 
 
 
@@ -142,12 +148,24 @@ if [[ "$verbosity" -ge 2 ]]; then
    # Print debugging information
    /bin/cat <<__EOT
 Debugging information:
-  Warning threshold: $thresh_warn MIN
-  Critical threshold: $thresh_crit MIN
+  Warning threshold: $thresh_warn
+  Critical threshold: $thresh_crit
   Verbosity level: $verbosity
-  Completed Time: $time
-  NOVA Output: $nova_output
+  RAM limit: $RAMLIMIT
+  RAM used: $RAMUSED ($RAMUSEDPERC%)
 __EOT
 fi
 
-
+if [[ "$RAMUSED" -gt "$thresh_crit" ]]; then
+   # Used ram is over the critical threshold
+   echo "NOVA RAM USAGE CRITICAL - $RAMUSEDPERC% used ($RAMUSED out of $RAMLIMIT)"
+   exit $STATE_CRITICAL
+elif [[ "$RAMUSED" -gt "$thresh_warn" ]]; then
+   # Used ram is over the warning threshold
+   echo "NOVA RAM USAGE WARNING - $RAMUSEDPERC% used ($RAMUSED out of $RAMLIMIT)"
+   exit $STATE_WARNING
+else
+   # Used ram is less than the warning threshold
+   echo "NOVA RAM USAGE OK - $RAMUSEDPERC% used ($RAMUSED out of $RAMLIMIT)"
+   exit $STATE_OK
+fi
