@@ -24,6 +24,14 @@ define command {
         command_line    $USER1$/nova_ram_usage.sh -w $ARG1$ -c $ARG2$
 }
 
+# 'nova_instance_usage' command definition
+define command {
+        command_name    nova_instance_usage
+        command_line    $USER1$/nova_instance_usage.sh -w $ARG1$ -c $ARG2$
+}
+
+
+
 # SWIFT #######################################################################
 
 # 'swift_stat' command definition
